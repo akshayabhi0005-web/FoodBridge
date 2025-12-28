@@ -1,5 +1,4 @@
 # FoodBridge
-Turning Food Waste into Hope
 🌱 FoodBridge – Turning Food Waste into Hope
 
 FoodBridge is a modern, web-based platform designed to reduce food wastage by connecting food donors, non-governmental organizations (NGOs), and volunteers through a single, user-friendly system. The platform enables real-time coordination for food donation, discovery, and delivery, ensuring surplus food reaches communities in need efficiently and safely.
