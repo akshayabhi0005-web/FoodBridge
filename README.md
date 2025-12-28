@@ -36,4 +36,4 @@ React Router DOM
 
 Leaflet & OpenStreetMap
 
-Google Maps API
+Google Maps Integration
