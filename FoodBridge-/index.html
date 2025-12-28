@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FoodBridge - Food Waste Reduction Platform</title>
+  
+  <script src="/_sdk/element_sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+  
+  <link rel="stylesheet" href="style.css">
+  
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="app-container"><div class="language-selector"><select id="languageSelect"> <option value="en">English</option> <option value="kn">ಕನ್ನಡ (Kannada)</option> <option value="ta">மிழ் (Tamil)</option> <option value="te">తెలుగు (Telugu)</option> <option value="ml">മയാളം (Malayalam)</option> <option value="hi">हिंदी (Hindi)</option> </select>
+   </div><div class="ai-assistant"><button class="ai-button" id="aiToggle">🤖</button>
+    <div class="ai-chat-window" id="aiChatWindow">
+     <div class="ai-chat-header"><span>FoodBridge AI Assistant</span> <button class="ai-chat-close" id="aiClose">×</button>
+     </div>
+     <div class="ai-chat-messages" id="aiMessages">
+      <div class="ai-message bot">
+       Hello! I'm your FoodBridge AI Assistant. How can I help you today? 
+      </div>
+     </div>
+     <div class="ai-quick-actions"><button class="ai-quick-btn" data-question="How do I donate food?">How to donate?</button> <button class="ai-quick-btn" data-question="What is FoodBridge?">About FoodBridge</button> <button class="ai-quick-btn" data-question="How can I volunteer?">Volunteer info</button> <button class="ai-quick-btn" data-question="Show impact statistics">View impact</button>
+     </div>
+     <div class="ai-chat-input-area"><input type="text" class="ai-chat-input" id="aiInput" placeholder="Ask me anything..."> <button class="ai-send-btn" id="aiSend">➤</button>
+     </div>
+    </div>
+   </div><div id="loginScreen" class="screen active">
+    <div class="auth-container">
+     <div class="auth-card">
+      <div style="text-align: center; margin-bottom: 30px;">
+       <div style="font-size: 36px; font-weight: 700; color: #4CAF50; margin-bottom: 10px;">
+        🌱 FoodBridge
+       </div>
+       <h2 style="margin: 0;">Welcome Back</h2>
+      </div>
+      <form id="loginForm">
+       <div class="form-group"><label for="loginEmail">Email Address</label> <input type="email" id="loginEmail" placeholder="Enter your email" required>
+       </div>
+       <div class="form-group"><label for="loginPassword">Password</label> <input type="password" id="loginPassword" placeholder="Enter your password" required>
+       </div><button type="submit" class="btn-primary btn-green">Login</button>
+      </form>
+      <div class="auth-link">
+       New user? <a id="goToRegister">Register</a>
+      </div>
+     </div>
+    </div>
+   </div><div id="registerScreen" class="screen">
+    <div class="auth-container">
+     <div class="auth-card">
+      <div style="text-align: center; margin-bottom: 30px;">
+       <div style="font-size: 36px; font-weight: 700; color: #4CAF50; margin-bottom: 10px;">
+        🌱 FoodBridge
+       </div>
+       <h2 style="margin: 0;">Create Account</h2>
+      </div>
+      <form id="registerForm">
+       <div class="form-group"><label for="regName">Full Name</label> <input type="text" id="regName" placeholder="Enter your full name" required>
+       </div>
+       <div class="form-group"><label for="regEmail">Email Address</label> <input type="email" id="regEmail" placeholder="Enter your email" required>
+       </div>
+       <div class="form-group"><label for="regPassword">Password</label> <input type="password" id="regPassword" placeholder="Create a password" required>
+       </div>
+       <div class="form-group"><label for="regConfirmPassword">Confirm Password</label> <input type="password" id="regConfirmPassword" placeholder="Confirm your password" required>
+       </div><button type="submit" class="btn-primary btn-orange">Register</button>
+      </form>
+      <div class="auth-link">
+       Already have an account? <a id="goToLogin">Login</a>
+      </div>
+     </div>
+    </div>
+   </div><div id="landingScreen" class="screen">
+    <div class="nav-bar">
+     <div class="nav-logo">
+      🌱 FoodBridge
+     </div>
+     <div class="nav-links"><a class="nav-link" id="viewImpactFromLanding"> View Impact</a> <a class="nav-link" id="exitFromLanding">❌ Exit</a>
+     </div>
+    </div>
+    <div class="landing-hero">
+     <h1 id="heroTitle">FoodBridge – Turning Food Waste into Hope</h1>
+     <div class="stats-container">
+      <div class="stat-card">
+       <div class="stat-circle red"><span id="wastePercent">0</span>%
+       </div>
+       <div class="stat-label">
+        Food Wasted Globally<br>
+        🚨 Critical Issue
+       </div>
+      </div>
+      <div class="stat-card">
+       <div class="stat-circle orange"><span id="hungryPeople">0</span>M
+       </div>
+       <div class="stat-label">
+        People Hungry<br>
+        😢 Needs Action
+       </div>
+      </div>
+      <div class="stat-card">
+       <div class="stat-circle gray"><span id="ghgPercent">0</span>%
+       </div>
+       <div class="stat-label">
+        GHG Emissions<br>
+        🌍 Climate Impact
+       </div>
+      </div>
+     </div>
+     <div class="cta-container"><button class="cta-btn green" id="ctaDonor">🍽️ Join as Food Donor</button> <button class="cta-btn blue" id="ctaNgo">🏢 Join as NGO</button> <button class="cta-btn orange" id="ctaVolunteer">🚚 Join as Volunteer</button>
+     </div>
+     <div style="text-align: center; margin-top: 40px;"><button class="cta-btn" id="viewImpact" style="background: linear-gradient(135deg, #4CAF50, #FF9800); color: white;">📊 View Our Impact</button>
+     </div>
+    </div>
+    <div class="footer" id="footerText">
+     © 2025 FoodBridge – For a Greener Tomorrow
+    </div>
+   </div><div id="donorScreen" class="screen">
+    <div class="nav-bar">
+     <div class="nav-logo">
+      🌱 FoodBridge
+     </div>
+     <div class="nav-links"><a class="nav-link" id="donorToLanding">Home</a>
+     </div>
+    </div>
+    <div class="dashboard-container">
+     <div class="sidebar"><a class="sidebar-link" id="donorBack">← Back</a> <a class="sidebar-link active" data-section="dashboard" data-dashboard="donor">Dashboard</a> <a class="sidebar-link" data-section="history" data-dashboard="donor">History</a> <a class="sidebar-link" data-section="profile" data-dashboard="donor">Profile</a> <a class="sidebar-link" data-section="location" data-dashboard="donor">📍 Location</a> <a class="sidebar-link" id="donorLogout">Logout</a>
+     </div>
+     <div class="dashboard-content"><div class="dashboard-section active" id="donorDashboard">
+       <div class="dashboard-header">
+        <h1>Donor Dashboard</h1>
+        <p>Share your surplus food and make a difference</p>
+       </div>
+       <div class="listing-form-card">
+        <h3>Create Food Listing</h3>
+        <form id="donorListingForm">
+         <div class="form-row">
+          <div class="form-group"><label for="foodTitle">Food Title</label> <input type="text" id="foodTitle" class="enhanced-input" placeholder="e.g., Fresh Vegetables" required>
+          </div>
+          <div class="form-group"><label for="foodQuantity">Quantity (kg)</label> <input type="number" id="foodQuantity" class="enhanced-input" placeholder="e.g., 10" min="1" required>
+          </div>
+         </div>
+         <div class="form-row">
+          <div class="form-group"><label for="foodCategory">Food Category</label> <select id="foodCategory" class="enhanced-input" required> <option value="">Select category...</option> <option value="cooked">Cooked Meal</option> <option value="raw">Raw Ingredients</option> <option value="packaged">Packaged Food</option> </select>
+          </div>
+          <div class="form-group"><label>Dietary Type</label>
+           <div style="display: flex; gap: 20px; align-items: center; padding-top: 8px;"><label style="display: flex; align-items: center; gap: 8px; cursor: pointer;"> <input type="radio" name="dietaryType" value="veg" checked style="cursor: pointer;"> <span>🥬 Veg</span> </label> <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;"> <input type="radio" name="dietaryType" value="non-veg" style="cursor: pointer;"> <span>🍗 Non-Veg</span> </label>
+           </div>
+          </div>
+         </div>
+         <div class="form-row">
+          <div class="form-group"><label for="foodExpiry">Expiry Date & Time</label> <input type="datetime-local" id="foodExpiry" class="enhanced-input" required>
+          </div>
+          <div class="form-group"><label for="foodTags">Tags</label> <input type="text" id="foodTags" class="enhanced-input" placeholder="e.g., Organic, Gluten-free">
+          </div>
+         </div>
+         <div class="form-row">
+          <div class="form-group"><label for="foodImage">Image URL (Optional)</label> <input type="url" id="foodImage" class="enhanced-input" placeholder="Paste image URL here...">
+           <div id="imagePreview" style="margin-top: 10px; display: none;"><img id="previewImg" src="" alt="Food preview" style="max-width: 150px; max-height: 150px; border-radius: 10px; object-fit: cover; border: 2px solid #e0e0e0;">
+           </div>
+          </div>
+         </div><div style="background: #f5f5f5; padding: 20px; border-radius: 15px; margin-top: 20px;">
+          <h4 style="color: #4CAF50; margin-bottom: 15px; font-size: 18px;">📍 Location</h4><button type="button" id="detectLocationBtn" class="btn-location"> <span id="locationBtnText">📍 Detect My Current Location</span> <span id="locationSpinner" style="display: none;">
+             <svg style="width: 20px; height: 20px; animation: spin 1s linear infinite;" viewbox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25" /> <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" opacity="0.75" />
+             </svg> Detecting... </span> </button>
+          <div class="form-row" style="margin-top: 15px;">
+           <div class="form-group"><label for="coordinatesDisplay">GPS Coordinates</label> <input type="text" id="coordinatesDisplay" class="enhanced-input" placeholder="Lat: --, Lng: --" readonly style="background: #e8f5e9;"> <input type="hidden" id="latitude"> <input type="hidden" id="longitude">
+           </div>
+          </div>
+          <div class="form-group" style="margin-top: 15px;"><label for="manualAddress">Manual Address</label> <textarea id="manualAddress" class="enhanced-input" rows="2" placeholder="Enter full address (e.g., 123 Main St, Bengaluru, Karnataka 560001)" style="resize: vertical;"></textarea>
+          </div>
+          <div class="form-group" style="margin-top: 15px;"><label for="pickupInstructions">Pickup Instructions</label> <textarea id="pickupInstructions" class="enhanced-input" rows="2" placeholder="Special instructions (e.g., Enter through the back gate, Ring doorbell twice)" style="resize: vertical;"></textarea>
+          </div>
+         </div><button type="submit" class="btn-primary btn-green" style="margin-top: 20px;">Add Listing</button>
+        </form>
+       </div>
+       <h2 style="color: #4CAF50; margin-bottom: 25px;">Active Donations</h2>
+       <div class="donations-grid" id="donationsGrid"></div>
+      </div><div class="dashboard-section" id="donorHistory">
+       <div class="dashboard-header">
+        <h1>Donation History</h1>
+        <p>View all your past donations</p>
+       </div>
+       <div class="history-card">
+        <h3>Recent Donations</h3>
+        <div class="history-list" id="donorHistoryList"></div>
+       </div>
+      </div><div class="dashboard-section" id="donorProfile">
+       <div class="dashboard-header">
+        <h1>Profile</h1>
+        <p>Manage your account information</p>
+       </div>
+       <div class="profile-card">
+        <h3>Account Information</h3>
+        <div class="profile-info">
+         <div class="info-item"><label>Full Name</label>
+          <div class="value" id="donorProfileName">
+           John Doe
+          </div>
+         </div>
+         <div class="info-item"><label>Email</label>
+          <div class="value">
+           john.doe@foodbridge.com
+          </div>
+         </div>
+         <div class="info-item"><label>Phone Number</label>
+          <div class="value" id="donorProfilePhone">
+           Not set
+          </div>
+         </div>
+         <div class="info-item"><label>User Type</label>
+          <div class="value" id="donorProfileType">
+           Donor
+          </div>
+         </div>
+         <div class="info-item"><label>Location</label>
+          <div class="value" id="donorProfileLocation">
+           Not set
+          </div>
+         </div>
+         <div class="info-item"><label>Member Since</label>
+          <div class="value">
+           January 2025
+          </div>
+         </div>
+         <div class="info-item"><label>Total Donations</label>
+          <div class="value">
+           47
+          </div>
+         </div>
+         <div class="info-item"><label>Food Saved (kg)</label>
+          <div class="value">
+           325
+          </div>
+         </div>
+        </div>
+       </div>
+      </div><div class="dashboard-section" id="donorLocation">
+       <div class="dashboard-header">
+        <h1>Location Settings</h1>
+        <p>Manage your location for better coordination</p>
+       </div>
+       <div class="profile-card">
+        <h3>Current Location</h3>
+        <div style="margin-bottom: 20px;"><button type="button" id="donorDetectLocationBtn" class="btn-location"> <span id="donorLocationBtnText">📍 Detect My Current Location</span> <span id="donorLocationSpinner" style="display: none;">
+           <svg style="width: 20px; height: 20px; animation: spin 1s linear infinite;" viewbox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25" /> <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" opacity="0.75" />
+           </svg> Detecting... </span> </button>
+        </div>
+        <div class="profile-info">
+         <div class="info-item"><label>Coordinates</label>
+          <div class="value" id="donorLocationCoords">
+           Not detected
+          </div>
+         </div>
+         <div class="info-item"><label>Address</label>
+          <div class="value" id="donorLocationAddress">
+           Not set
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div><div id="ngoScreen" class="screen">
+    <div class="nav-bar">
+     <div class="nav-logo">
+      🌱 FoodBridge
+     </div>
+     <div class="nav-links"><a class="nav-link" id="ngoToLanding">Home</a>
+     </div>
+    </div>
+    <div class="dashboard-container">
+     <div class="sidebar"><a class="sidebar-link" id="ngoBack">← Back</a> <a class="sidebar-link active" data-section="dashboard" data-dashboard="ngo">Dashboard</a> <a class="sidebar-link" data-section="history" data-dashboard="ngo">Claimed Items</a> <a class="sidebar-link" data-section="profile" data-dashboard="ngo">Profile</a> <a class="sidebar-link" id="ngoLogout">Logout</a>
+     </div>
+     <div class="dashboard-content"><div class="dashboard-section active" id="ngoDashboard">
+       <div class="dashboard-header">
+        <h1>NGO Dashboard</h1>
+        <p>Find and claim available food donations</p>
+       </div>
+       <div class="ngo-container">
+        <div class="map-container">
+         <div id="map"></div>
+        </div>
+        <div class="donations-list">
+         <h3>Available Donations</h3>
+         <div id="ngoListings"></div>
+        </div>
+       </div>
+      </div><div class="dashboard-section" id="ngoHistory">
+       <div class="dashboard-header">
+        <h1>Claimed Items</h1>
+        <p>View all your claimed donations</p>
+       </div>
+       <div class="history-card">
+        <h3>Recent Claims</h3>
+        <div class="history-list" id="ngoHistoryList"></div>
+       </div>
+      </div><div class="dashboard-section" id="ngoProfile">
+       <div class="dashboard-header">
+        <h1>Profile</h1>
+        <p>Manage your organization information</p>
+       </div>
+       <div class="profile-card">
+        <h3>Organization Information</h3>
+        <div class="profile-info">
+         <div class="info-item"><label>Organization Name</label>
+          <div class="value" id="ngoProfileName">
+           Hope Foundation
+          </div>
+         </div>
+         <div class="info-item"><label>Email</label>
+          <div class="value">
+           contact@hopefoundation.org
+          </div>
+         </div>
+         <div class="info-item"><label>Phone Number</label>
+          <div class="value" id="ngoProfilePhone">
+           Not set
+          </div>
+         </div>
+         <div class="info-item"><label>Registration ID</label>
+          <div class="value" id="ngoProfileRegId">
+           Not set
+          </div>
+         </div>
+         <div class="info-item"><label>Location</label>
+          <div class="value" id="ngoProfileLocation">
+           Not set
+          </div>
+         </div>
+         <div class="info-item"><label>User Type</label>
+          <div class="value">
+           NGO
+          </div>
+         </div>
+         <div class="info-item"><label>Member Since</label>
+          <div class="value">
+           December 2024
+          </div>
+         </div>
+         <div class="info-item"><label>Total Claims</label>
+          <div class="value">
+           128
+          </div>
+         </div>
+         <div class="info-item"><label>Meals Provided</label>
+          <div class="value">
+           3,450
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div><div id="volunteerScreen" class="screen">
+    <div class="nav-bar">
+     <div class="nav-logo">
+      🌱 FoodBridge
+     </div>
+     <div class="nav-links"><a class="nav-link" id="volunteerToLanding">Home</a>
+     </div>
+    </div>
+    <div class="dashboard-container">
+     <div class="sidebar"><a class="sidebar-link" id="volunteerBack">← Back</a> <a class="sidebar-link active" data-section="dashboard" data-dashboard="volunteer">Dashboard</a> <a class="sidebar-link" data-section="history" data-dashboard="volunteer">Deliveries</a> <a class="sidebar-link" data-section="profile" data-dashboard="volunteer">Profile</a> <a class="sidebar-link" id="volunteerLogout">Logout</a>
+     </div>
+     <div class="dashboard-content"><div class="dashboard-section active" id="volunteerDashboard">
+       <div class="dashboard-header">
+        <h1>Volunteer Dashboard</h1>
+        <p>Complete deliveries and earn rewards</p>
+       </div>
+       <div class="volunteer-header">
+        <h2 style="margin-bottom: 10px;">Expert Level 3</h2>
+        <div class="gamification-stats">
+         <div class="gamification-stat">
+          <h3 id="volunteerPoints">1250</h3>
+          <p>Total Points</p>
+         </div>
+         <div class="gamification-stat">
+          <h3 id="volunteerXP">2500</h3>
+          <p>XP</p>
+         </div>
+         <div class="gamification-stat">
+          <h3 id="volunteerDeliveries">47</h3>
+          <p>Deliveries</p>
+         </div>
+        </div>
+        <div class="xp-bar">
+         <div class="xp-fill" id="xpFill" style="width: 65%;"></div>
+        </div>
+       </div>
+       <h2 style="color: #9C27B0; margin-bottom: 25px;">Delivery Assignments</h2><div class="map-container" style="margin-bottom: 30px; height: 400px;">
+        <div id="volunteerMap"></div>
+       </div>
+       <div class="delivery-assignments" id="deliveryAssignments"></div>
+       <div class="leaderboard-card">
+        <h3>🏆 Top Volunteers</h3>
+        <div id="leaderboard"></div>
+       </div>
+      </div><div class="dashboard-section" id="volunteerHistory">
+       <div class="dashboard-header">
+        <h1>Delivery History</h1>
+        <p>View all your completed deliveries</p>
+       </div>
+       <div class="history-card">
+        <h3>Recent Deliveries</h3>
+        <div class="history-list" id="volunteerHistoryList"></div>
+       </div>
+      </div><div class="dashboard-section" id="volunteerProfile">
+       <div class="dashboard-header">
+        <h1>Profile</h1>
+        <p>Manage your volunteer information</p>
+       </div>
+       <div class="profile-card">
+        <h3>Volunteer Information</h3>
+        <div class="profile-info">
+         <div class="info-item"><label>Full Name</label>
+          <div class="value" id="volunteerProfileName">
+           Sarah Johnson
+          </div>
+         </div>
+         <div class="info-item"><label>Email</label>
+          <div class="value">
+           sarah.j@email.com
+          </div>
+         </div>
+         <div class="info-item"><label>Phone Number</label>
+          <div class="value" id="volunteerProfilePhone">
+           Not set
+          </div>
+         </div>
+         <div class="info-item"><label>Vehicle Type</label>
+          <div class="value" id="volunteerProfileVehicle">
+           Not set
+          </div>
+         </div>
+         <div class="info-item"><label>Location</label>
+          <div class="value" id="volunteerProfileLocation">
+           Not set
+          </div>
+         </div>
+         <div class="info-item"><label>User Type</label>
+          <div class="value">
+           Volunteer
+          </div>
+         </div>
+         <div class="info-item"><label>Member Since</label>
+          <div class="value">
+           November 2024
+          </div>
+         </div>
+         <div class="info-item"><label>Current Level</label>
+          <div class="value">
+           Expert Level 3
+          </div>
+         </div>
+         <div class="info-item"><label>Total Points</label>
+          <div class="value">
+           1,250
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div><div id="impactScreen" class="screen">
+    <div class="nav-bar">
+     <div class="nav-logo">
+      🌱 FoodBridge
+     </div>
+     <div class="nav-links"><a class="nav-link" id="impactToLanding">Home</a> <a class="nav-link" id="impactLogout">Logout</a>
+     </div>
+    </div>
+    <div class="dashboard-container">
+     <div class="sidebar"><a class="sidebar-link" id="impactBack">← Back</a> <a class="sidebar-link active">📊 Impact</a> <a class="sidebar-link" id="impactLogoutSidebar">Logout</a>
+     </div>
+     <div class="dashboard-content">
+      <div class="dashboard-header">
+       <h1>Impact Dashboard</h1>
+       <p>Track the positive change we're making together</p>
+      </div>
+      <div class="impact-grid">
+       <div class="impact-card">
+        <div class="impact-icon">
+         🍽️
+        </div>
+        <div class="impact-value" id="impactMeals">
+         0
+        </div>
+        <div class="impact-label">
+         Total Meals Provided
+        </div>
+       </div>
+       <div class="impact-card">
+        <div class="impact-icon">
+         
+        </div>
+        <div class="impact-value" id="impactCO2">
+         0
+        </div>
+        <div class="impact-label">
+         CO₂ Saved (kg)
+        </div>
+       </div>
+       <div class="impact-card">
+        <div class="impact-icon">
+         🔗
+        </div>
+        <div class="impact-value" id="impactReceipts">
+         0
+        </div>
+        <div class="impact-label">
+         Blockchain Receipts
+        </div>
+       </div>
+      </div>
+      <div class="chart-container">
+       <h3>Monthly Impact Trend</h3>
+       <div class="bar-chart" id="impactChart"></div>
+      </div><button class="btn-download">Download Impact Report (PDF)</button>
+     </div>
+    </div>
+   </div><div class="modal" id="claimModal">
+    <div class="modal-content">
+     <h3>Claim Donation</h3>
+     <p>Are you sure you want to claim this food donation? A volunteer will be assigned for delivery.</p>
+     <div class="modal-buttons"><button class="btn-modal btn-confirm" id="confirmClaim">Confirm</button> <button class="btn-modal btn-cancel" id="cancelClaim">Cancel</button>
+     </div>
+    </div>
+   </div><div class="exit-modal" id="exitModal">
+    <div class="modal-content">
+     <h3>Exit FoodBridge</h3>
+     <p>Are you sure you want to exit? Your session will be ended.</p>
+     <div class="modal-buttons"><button class="btn-modal btn-confirm" id="confirmExit">Yes, Exit</button> <button class="btn-modal btn-cancel" id="cancelExit">Stay</button>
+     </div>
+    </div>
+   </div><div class="sidebar-overlay" id="sidebarOverlay"></div>
+   <div class="volunteer-sidebar" id="volunteerSidebar">
+    <div class="volunteer-sidebar-header">
+     <h3> Assign Volunteer</h3>
+     <p>Select a nearby volunteer for delivery</p><button class="volunteer-sidebar-close" id="closeSidebar">×</button>
+    </div>
+    <div class="volunteer-sidebar-content" id="volunteerSidebarContent"></div>
+   </div><div class="onboarding-modal" id="onboardingModal">
+    <div class="onboarding-content">
+     <div class="onboarding-header">
+      <h2>👋 Welcome to FoodBridge!</h2>
+      <p>Let's complete your profile to get started</p>
+     </div><div class="progress-stepper">
+      <div class="progress-step active" id="progressStep1">
+       1
+      </div>
+      <div class="progress-line" id="progressLine1"></div>
+      <div class="progress-step" id="progressStep2">
+       2
+      </div>
+      <div class="progress-line" id="progressLine2"></div>
+      <div class="progress-step" id="progressStep3">
+       3
+      </div>
+     </div>
+     <form id="onboardingForm"><div class="onboarding-step active" id="onboardingStep1">
+       <h3 style="color: #4CAF50; margin-bottom: 20px;">📞 Contact Information</h3>
+       <div class="form-group"><label for="onboardingName">Full Name <span style="color: red;">*</span></label> <input type="text" id="onboardingName" class="enhanced-input" placeholder="Enter your full name" required>
+       </div>
+       <div class="form-group"><label for="onboardingPhone">Phone Number <span style="color: red;">*</span></label> <input type="tel" id="onboardingPhone" class="enhanced-input" placeholder="+91 XXXXX XXXXX" required>
+       </div>
+      </div><div class="onboarding-step" id="onboardingStep2">
+       <h3 style="color: #4CAF50; margin-bottom: 20px;">📍 Location Details</h3>
+       <div style="margin-bottom: 20px;"><button type="button" id="onboardingDetectLocationBtn" class="btn-location"> <span id="onboardingLocationBtnText">📍 Detect My Current Location</span> <span id="onboardingLocationSpinner" style="display: none;">
+          <svg style="width: 20px; height: 20px; animation: spin 1s linear infinite;" viewbox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25" /> <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" opacity="0.75" />
+          </svg> Detecting... </span> </button>
+       </div>
+       <div class="form-group"><label for="onboardingCoordinates">GPS Coordinates</label> <input type="text" id="onboardingCoordinates" class="enhanced-input" placeholder="Lat: --, Lng: --" readonly style="background: #e8f5e9;"> <input type="hidden" id="onboardingLat"> <input type="hidden" id="onboardingLng">
+       </div>
+       <div class="form-group"><label for="onboardingCity">City <span style="color: red;">*</span></label> <input type="text" id="onboardingCity" class="enhanced-input" placeholder="Enter your city" required>
+       </div>
+       <div class="form-group"><label for="onboardingAddress">Full Address</label> <textarea id="onboardingAddress" class="enhanced-input" rows="3" placeholder="Enter your full address" style="resize: vertical;"></textarea>
+       </div>
+      </div><div class="onboarding-step" id="onboardingStep3">
+       <h3 style="color: #4CAF50; margin-bottom: 20px;" id="roleSpecificTitle"> Additional Information</h3><div id="donorFields" style="display: none;">
+        <div class="form-group"><label>Donor Type <span style="color: red;">*</span></label>
+         <div class="radio-group"><label class="radio-option" id="donorIndividual"> <input type="radio" name="donorType" value="individual">
+           <div>
+            👤 Individual
+           </div></label> <label class="radio-option" id="donorBusiness"> <input type="radio" name="donorType" value="business">
+           <div>
+            🏢 Restaurant/Event
+           </div></label>
+         </div>
+        </div>
+       </div><div id="ngoFields" style="display: none;">
+        <div class="form-group"><label for="orgName">Organization Name <span style="color: red;">*</span></label> <input type="text" id="orgName" class="enhanced-input" placeholder="Enter organization name">
+        </div>
+        <div class="form-group"><label for="regId">Registration ID <span style="color: red;">*</span></label> <input type="text" id="regId" class="enhanced-input" placeholder="Enter registration ID">
+        </div>
+       </div><div id="volunteerFields" style="display: none;">
+        <div class="form-group"><label for="vehicleType">Vehicle Type <span style="color: red;">*</span></label> <select id="vehicleType" class="enhanced-input"> <option value="">Select your vehicle...</option> <option value="bicycle">🚲 Bicycle</option> <option value="motorbike">🏍️ Motorbike</option> <option value="car">🚗 Car</option> <option value="van">🚐 Van</option> </select>
+        </div>
+       </div>
+      </div><div class="onboarding-buttons"><button type="button" class="btn-onboarding btn-onboarding-back" id="onboardingBack" style="display: none;">← Back</button> <button type="button" class="btn-onboarding btn-onboarding-next" id="onboardingNext">Next </button>
+      </div>
+     </form>
+    </div>
+   </div>
+  </div>
+  <script src="script.js"></script>
+ </body>
+</html>
